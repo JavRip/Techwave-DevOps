@@ -1,0 +1,20 @@
+# service.yaml
+# El Service expone los pods con una IP estable.
+# ClusterIP significa accesible solo dentro del clúster.
+# El Ingress será el punto de entrada desde fuera.
+apiVersion: v1
+kind: Service
+metadata:
+  name: techwave-service
+  namespace: techwave
+  labels:
+    app: techwave-app
+spec:
+  selector:
+    app: techwave-app   # dirige tráfico a pods con esta etiqueta
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP

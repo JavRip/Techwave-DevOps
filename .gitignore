@@ -1,0 +1,16 @@
+cat > .gitignore << 'EOF'
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/tfplan
+terraform/*.tfstate
+terraform/*.tfstate.backup
+
+# Docker
+**/__pycache__/
+**/*.pyc
+
+# Secretos - NUNCA subir al repositorio
+*.env
+.env.*
+EOF
