@@ -17,6 +17,26 @@ echo "[OK] Todas las herramientas disponibles"
 
 echo "[INFO] Levantando LocalStack..."
 if docker ps | grep -q localstack; then
+  echo "[OK] LocalStack ya está corriendo"
+elif docker ps -a | grep -q localstack; then
+  docker start localstack
+  echo "[OK] LocalStack reiniciado"
+else
+  docker run -d \
+    --name localstack \
+    --restart unless-stopped \
+    -p 4566:4566 \
+    -e SERVICES=s3 \
+    -e PERSISTENCE=1 \
+    localstack/localstack:latest
+fi
+
+echo "[INFO] Esperando a que LocalStack esté listo..."
+until aws --endpoint-url=http://localhost:4566 s3 ls &>/dev/null; do
+  sleep 2
+done
+echo "[OK] LocalStack listo"
+
 echo "[INFO] Verificando bucket S3..."
 if ! aws --endpoint-url=http://localhost:4566 s3 ls s3://techwave-terraform-state &>/dev/null; then
   echo "[INFO] Creando bucket S3..."
@@ -68,8 +88,17 @@ fi
 echo "[INFO] Aplicando infraestructura con Terraform..."
 cd terraform
 terraform init -reconfigure
-terraform apply -auto-approve
+echo "[INFO] Sincronizando estado de Terraform..."
+terraform init -reconfigure -input=false
+
+# Importar recursos si el estado está vacío pero los recursos existen
+if ! terraform state list | grep -q "kubernetes_namespace"; then
+  echo "[INFO] Importando recursos existentes..."
+  terraform import module.kubernetes.kubernetes_namespace.app techwave 2>/dev/null || true
+  terraform import module.kubernetes.kubernetes_config_map.app techwave/techwave-config 2>/dev/null || true
+fi
 cd ..
+terraform apply -auto-approve
 
 echo "[INFO] Aplicando manifiestos de Kubernetes..."
 kubectl apply -f kubernetes/secret.yaml
