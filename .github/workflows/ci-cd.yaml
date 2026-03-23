@@ -12,6 +12,7 @@ on:
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/techwave-app
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ============================================================
@@ -102,15 +103,15 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Instalar kubeval
+      - name: Instalar kubeconform
         run: |
-          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
-          tar xf kubeval-linux-amd64.tar.gz
-          sudo mv kubeval /usr/local/bin
+          curl -sSL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar xz
+          sudo mv kubeconform /usr/local/bin
 
       - name: Validar manifiestos YAML
         run: |
-          kubeval kubernetes/deployment.yaml
-          kubeval kubernetes/service.yaml
-          kubeval kubernetes/ingress.yaml
+          kubeconform -strict kubernetes/deployment.yaml
+          kubeconform -strict kubernetes/service.yaml
+          kubeconform -strict kubernetes/ingress.yaml
           echo "[OK] Todos los manifiestos son válidos"
