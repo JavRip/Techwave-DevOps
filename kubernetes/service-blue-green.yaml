@@ -1,0 +1,20 @@
+# service-blue-green.yaml
+# El selector "version: blue" dirige TODO el tráfico al Deployment blue.
+# Para cambiar a green, basta con cambiar "blue" por "green" en el selector.
+apiVersion: v1
+kind: Service
+metadata:
+  name: techwave-service
+  namespace: techwave
+  labels:
+    app: techwave-app
+spec:
+  selector:
+    app: techwave-app
+    version: blue    # ← este es el único campo que cambia en el switch
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: ClusterIP

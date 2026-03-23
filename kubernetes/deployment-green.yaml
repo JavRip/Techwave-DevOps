@@ -1,43 +1,39 @@
-# deployment.yaml
-# El Deployment garantiza que siempre haya N réplicas de la aplicación
-# corriendo. Si un pod muere, el ReplicaSet lo recrea automáticamente.
+# deployment-green.yaml
+# Versión "green" — la nueva versión pendiente de activar
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: techwave-app
+  name: techwave-app-green
   namespace: techwave
   labels:
     app: techwave-app
-    version: "1.0.0"
+    version: green
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: techwave-app
+      version: green
   template:
     metadata:
       labels:
         app: techwave-app
-        version: "1.0.0"
+        version: green
     spec:
       containers:
         - name: techwave-app
-          image: javrip/techwave-app:latest
+          image: javrip/techwave-app:latest  # en producción sería la nueva versión
           ports:
             - containerPort: 5000
-          # Cargar la configuración no sensible desde el ConfigMap
           envFrom:
             - configMapRef:
                 name: techwave-config
-          # Cargar los secretos como variables de entorno individuales
           env:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: techwave-secret
                   key: SECRET_KEY
-          # Recursos: limits evita que un pod acapare el nodo
-          # requests permite al scheduler decidir dónde colocar el pod
           resources:
             requests:
               memory: "128Mi"
@@ -45,7 +41,6 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
-          # Liveness: si falla, Kubernetes reinicia el pod
           livenessProbe:
             httpGet:
               path: /health
@@ -53,7 +48,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 15
             failureThreshold: 4
-          # Readiness: si falla, el pod se saca del Service (no recibe tráfico)
           readinessProbe:
             httpGet:
               path: /health
