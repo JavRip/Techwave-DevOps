@@ -1,0 +1,23 @@
+# ingress.yaml
+# El Ingress expone la aplicación al exterior del clúster.
+# Requiere que el Ingress Controller nginx esté instalado.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: techwave-ingress
+  namespace: techwave
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: techwave.local   # dominio local para desarrollo
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: techwave-service
+                port:
+                  number: 80

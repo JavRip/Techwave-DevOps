@@ -9,6 +9,12 @@ name: techwave
 
 nodes:
   - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
     # Exponer el puerto 80 y 443 del nodo al host para el Ingress Controller
     extraPortMappings:
       - containerPort: 80
