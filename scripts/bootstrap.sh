@@ -80,5 +80,24 @@ kubectl apply -f kubernetes/deployment-green.yaml
 kubectl apply -f kubernetes/service-blue-green.yaml
 kubectl apply -f kubernetes/ingress.yaml
 
+echo "[INFO] Verificando stack de monitoreo..."
+if ! helm list -n monitoring | grep -q monitoring; then
+  echo "[INFO] Instalando kube-prometheus-stack..."
+  helm install monitoring prometheus-community/kube-prometheus-stack \
+    --namespace monitoring \
+    --set grafana.adminPassword=techwave123 \
+    --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
+    --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+fi
+
+if ! helm list -n monitoring | grep -q loki; then
+  echo "[INFO] Instalando Loki..."
+  helm install loki grafana/loki-stack \
+    --namespace monitoring \
+    --set promtail.enabled=true \
+    --set grafana.enabled=false
+fi
+echo "[OK] Stack de monitoreo listo"
+
 echo "[OK] Entorno listo"
 kubectl get all -n techwave
