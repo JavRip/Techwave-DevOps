@@ -1,10 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 import datetime
 import random
 import os
 import time
 import threading
-from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry
+from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import psutil
 
 cache_dir = "/app/cache"
@@ -35,7 +35,7 @@ def metrics():
     registry.register(REQUEST_COUNT)
     registry.register(REQUEST_DURATION)
     registry.register(APP_UPTIME)
-    return generate_latest(registry)
+    return Response(generate_latest(registry), mimetype=CONTENT_TYPE_LATEST)
 
 @app.route('/health')
 def health():

@@ -1,0 +1,21 @@
+# servicemonitor.yaml
+# Le indica al Prometheus Operator que scrapee el endpoint /metrics
+# de nuestra aplicación cada 15 segundos
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: techwave-app
+  namespace: monitoring
+  labels:
+    release: monitoring  # etiqueta que identifica este monitor con el stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - techwave  # busca Services en el namespace de la app
+  selector:
+    matchLabels:
+      app: techwave-app  # busca Services con esta etiqueta
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
