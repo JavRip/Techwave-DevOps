@@ -51,32 +51,6 @@ if ! aws --endpoint-url=http://localhost:4566 s3 ls s3://techwave-terraform-stat
 fi
 echo "[OK] Bucket S3 listo"
 
-elif docker ps -a | grep -q localstack; then
-  docker start localstack
-  echo "[OK] LocalStack reiniciado"
-else
-  docker run -d \
-    --name localstack \
-    --restart unless-stopped \
-    -p 4566:4566 \
-    -e SERVICES=s3 \
-    -e DEFAULT_REGION=eu-south-2 \
-    -e DATA_DIR=/tmp/localstack/data \
-    localstack/localstack:latest
-  echo "[INFO] Esperando a que LocalStack esté listo..."
-  until aws --endpoint-url=http://localhost:4566 s3 ls &>/dev/null; do
-    sleep 2
-  done
-  aws --endpoint-url=http://localhost:4566 \
-      --region eu-south-2 \
-      s3 mb s3://techwave-terraform-state 2>/dev/null || true
-  aws --endpoint-url=http://localhost:4566 \
-      --region eu-south-2 \
-      s3api put-bucket-versioning \
-      --bucket techwave-terraform-state \
-      --versioning-configuration Status=Enabled
-fi
-
 echo "[INFO] Verificando clúster de Kubernetes..."
 if kubectl cluster-info &>/dev/null; then
   echo "[OK] Clúster kind ya está activo"
@@ -87,23 +61,24 @@ fi
 
 echo "[INFO] Aplicando infraestructura con Terraform..."
 cd terraform
-terraform init -reconfigure
-echo "[INFO] Sincronizando estado de Terraform..."
 terraform init -reconfigure -input=false
 
-# Importar recursos si el estado está vacío pero los recursos existen
+echo "[INFO] Sincronizando estado de Terraform..."
 if ! terraform state list | grep -q "kubernetes_namespace"; then
   echo "[INFO] Importando recursos existentes..."
   terraform import module.kubernetes.kubernetes_namespace.app techwave 2>/dev/null || true
   terraform import module.kubernetes.kubernetes_config_map.app techwave/techwave-config 2>/dev/null || true
 fi
-cd ..
+
 terraform apply -auto-approve
+cd ..
 
 echo "[INFO] Aplicando manifiestos de Kubernetes..."
 kubectl apply -f kubernetes/secret.yaml
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
+kubectl apply -f kubernetes/deployment-blue.yaml
+kubectl apply -f kubernetes/deployment-green.yaml
+kubectl apply -f kubernetes/service-blue-green.yaml
+kubectl apply -f kubernetes/ingress.yaml
 
 echo "[OK] Entorno listo"
 kubectl get all -n techwave
