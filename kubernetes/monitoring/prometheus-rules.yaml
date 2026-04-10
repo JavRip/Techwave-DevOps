@@ -1,7 +1,7 @@
 # prometheus-rules.yaml
 # Define las alertas que Prometheus enviará a Alertmanager
 # cuando se cumplan las condiciones especificadas
-# yaml-language-server: $schema=skip
+# yaml-language-server: $schema=false
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:

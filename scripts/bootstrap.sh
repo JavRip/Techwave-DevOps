@@ -99,5 +99,14 @@ if ! helm list -n monitoring | grep -q loki; then
 fi
 echo "[OK] Stack de monitoreo listo"
 
+echo "[INFO] Iniciando port-forwards de monitoreo..."
+# Matar port-forwards anteriores si existen
+pkill -f "port-forward" 2>/dev/null || true
+sleep 1
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
+kubectl port-forward -n monitoring svc/loki 3100:3100 &
+echo "[OK] Port-forwards activos: Grafana:3000, Prometheus:9090, Loki:3100"
+
 echo "[OK] Entorno listo"
 kubectl get all -n techwave
