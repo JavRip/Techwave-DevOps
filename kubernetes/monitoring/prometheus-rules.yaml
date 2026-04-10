@@ -1,0 +1,72 @@
+# prometheus-rules.yaml
+# Define las alertas que Prometheus enviará a Alertmanager
+# cuando se cumplan las condiciones especificadas
+# yaml-language-server: $schema=skip
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: techwave-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring  # necesario para que el Operator lo detecte
+spec:
+  groups:
+    - name: techwave.application
+      interval: 30s
+      rules:
+        # Alerta cuando la tasa de errores 503 supera el 10%
+        # durante más de 2 minutos
+        - alert: HighErrorRate
+          expr: |
+            sum(rate(http_requests_total{namespace="techwave", status_code="503"}[5m]))
+            /
+            sum(rate(http_requests_total{namespace="techwave"}[5m]))
+            > 0.10
+          for: 2m
+          labels:
+            severity: warning
+            team: techwave
+          annotations:
+            summary: "Alta tasa de errores en TechWave"
+            description: "La tasa de errores 503 supera el 10% durante más de 2 minutos. Valor actual: {{ $value | humanizePercentage }}"
+
+        # Alerta cuando no hay pods disponibles
+        - alert: NoPodsAvailable
+          expr: |
+            kube_deployment_status_replicas_available{namespace="techwave"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: techwave
+          annotations:
+            summary: "Sin pods disponibles en TechWave"
+            description: "El deployment {{ $labels.deployment }} no tiene réplicas disponibles"
+
+        # Alerta cuando un pod se reinicia frecuentemente
+        - alert: PodRestartingTooOften
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="techwave"}[1h]) > 3
+          for: 5m
+          labels:
+            severity: warning
+            team: techwave
+          annotations:
+            summary: "Pod reiniciándose frecuentemente"
+            description: "El pod {{ $labels.pod }} se ha reiniciado más de 3 veces en la última hora"
+
+    - name: techwave.infrastructure
+      interval: 60s
+      rules:
+        # Alerta cuando el uso de memoria supera el 80%
+        - alert: HighMemoryUsage
+          expr: |
+            (container_memory_usage_bytes{namespace="techwave"}
+            /
+            container_spec_memory_limit_bytes{namespace="techwave"}) > 0.80
+          for: 5m
+          labels:
+            severity: warning
+            team: techwave
+          annotations:
+            summary: "Alto uso de memoria en TechWave"
+            description: "El contenedor {{ $labels.container }} usa más del 80% de su límite de memoria"
