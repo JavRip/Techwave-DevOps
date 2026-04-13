@@ -111,7 +111,8 @@ jobs:
 
       - name: Validar manifiestos YAML
         run: |
-          kubeconform -strict kubernetes/deployment.yaml
-          kubeconform -strict kubernetes/service.yaml
+          kubeconform -strict kubernetes/deployment-blue.yaml
+          kubeconform -strict kubernetes/deployment-green.yaml
+          kubeconform -strict kubernetes/service-blue-green.yaml
           kubeconform -strict kubernetes/ingress.yaml
           echo "[OK] Todos los manifiestos son válidos"
