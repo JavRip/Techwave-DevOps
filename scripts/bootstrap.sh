@@ -27,7 +27,6 @@ else
     --restart unless-stopped \
     -p 4566:4566 \
     -e SERVICES=s3 \
-    -e PERSISTENCE=1 \
     localstack/localstack:latest
 fi
 
