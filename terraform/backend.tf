@@ -1,8 +1,5 @@
 # backend.tf
 # Configura el almacenamiento remoto del estado de Terraform.
-# En producción esto apuntaría a S3 real; aquí apuntamos a LocalStack
-# mediante el endpoint override. La clave del bucket actúa como "ruta"
-# del fichero de estado dentro del bucket.
 
 terraform {
   backend "s3" {
