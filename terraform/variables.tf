@@ -28,5 +28,5 @@ variable "environment" {
 variable "app_image" {
   description = "Imagen Docker completa a desplegar (ej: tuusuario/techwave-app:latest)"
   type        = string
-  default     = "tuusuario/techwave-app:latest"
+  default     = "JavRip/techwave-app:latest"
 }
