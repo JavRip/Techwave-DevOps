@@ -1,7 +1,5 @@
 # kind-config.yaml
 # Define la topología del clúster local de Kubernetes
-# Un nodo control-plane y dos workers es suficiente para simular
-# un entorno de producción mínimo con alta disponibilidad básica
 
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4

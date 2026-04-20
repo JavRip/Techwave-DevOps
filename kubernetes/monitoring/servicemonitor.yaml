@@ -1,6 +1,5 @@
 # servicemonitor.yaml
-# Le indica al Prometheus Operator que scrapee el endpoint /metrics
-# de nuestra aplicación cada 15 segundos
+# Le indica al Prometheus Operator que scrapee el endpoint /metrics cada 15 segundos
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
