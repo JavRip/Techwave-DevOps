@@ -1,6 +1,5 @@
 # otel-values.yaml
 # Configuración del OpenTelemetry Collector
-# Recibe trazas de la aplicación y las exporta a Prometheus y logs a Loki
 image:
   repository: otel/opentelemetry-collector-contrib
 
