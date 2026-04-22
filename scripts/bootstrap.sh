@@ -69,7 +69,7 @@ if ! terraform state list | grep -q "kubernetes_namespace"; then
   terraform import module.kubernetes.kubernetes_config_map.app techwave/techwave-config 2>/dev/null || true
 fi
 
-terraform apply -auto-approve
+terraform apply
 cd ..
 
 echo "[INFO] Aplicando manifiestos de Kubernetes..."
