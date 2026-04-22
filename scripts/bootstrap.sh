@@ -91,6 +91,7 @@ if ! helm list -n monitoring | grep -q monitoring; then
   echo "[INFO] Instalando kube-prometheus-stack..."
   helm install monitoring prometheus-community/kube-prometheus-stack \
     --namespace monitoring \
+    --create-namespace \
     --set grafana.adminPassword=techwave123 \
     --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
     --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
