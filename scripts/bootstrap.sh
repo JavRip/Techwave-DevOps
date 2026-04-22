@@ -80,6 +80,13 @@ kubectl apply -f kubernetes/service-blue-green.yaml
 kubectl apply -f kubernetes/ingress.yaml
 
 echo "[INFO] Verificando stack de monitoreo..."
+echo "[INFO] Instalando repositorios..."
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+helm repo update
+echo "[INFO] Repositorios instalados"
+
 if ! helm list -n monitoring | grep -q monitoring; then
   echo "[INFO] Instalando kube-prometheus-stack..."
   helm install monitoring prometheus-community/kube-prometheus-stack \
@@ -89,13 +96,35 @@ if ! helm list -n monitoring | grep -q monitoring; then
     --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
 fi
 
+echo "[INFO] Instalando ServiceMonitor y PrometheusRules..."
+cd ./kubernetes/monitoring
+kubectl apply -f prometheus-rules.yaml
+kubectl apply -f servicemonitor.yaml
+cd ../..
+echo "[INFO] ServiceMonitor y PrometheusRules instalados..."
+
+if ! helm list -n monitoring | grep -q otel; then
+  echo "[INFO] Instalando OTel Collector..."
+  cd ./kubernetes/monitoring
+  helm install otel open-telemetry/opentelemetry-collector -f otel-values.yaml \
+    --namespace monitoring
+  cd ../..
+fi
+
 if ! helm list -n monitoring | grep -q loki; then
   echo "[INFO] Instalando Loki..."
-  helm install loki grafana/loki-stack \
+  helm install loki grafana/loki \
     --namespace monitoring \
-    --set promtail.enabled=true \
     --set grafana.enabled=false
 fi
+
+if ! helm list -n monitoring | grep -q promtail; then
+  echo "[INFO] Instalando Promtail..."
+  helm install promtail grafana/promtail \
+    --namespace monitoring \
+    --set "config.clients[0].url=http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
+fi
+
 echo "[OK] Stack de monitoreo listo"
 
 echo "[INFO] Iniciando port-forwards de monitoreo..."
