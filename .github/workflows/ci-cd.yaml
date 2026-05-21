@@ -42,7 +42,7 @@ jobs:
 
       - name: Validar sintaxis Python
         run: |
-          python -m py_compile app/techwave-app.py
+          python -m py_compile app/techwave_app.py
           echo "[OK] Sintaxis Python correcta"
 
   # ============================================================
