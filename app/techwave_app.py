@@ -7,7 +7,7 @@ import threading
 from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import psutil
 
-cache_dir = "/app/cache"
+cache_dir = os.environ.get('CACHE_DIR', '/tmp/cache')
 if not os.path.exists(cache_dir):
     os.makedirs(cache_dir)
 

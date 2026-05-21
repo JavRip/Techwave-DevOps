@@ -4,6 +4,9 @@ FROM python:3.11-slim
 # Establecer el directorio de trabajo
 WORKDIR /app
 
+# Establecer directorio de caché
+ENV CACHE_DIR=/app/cache
+
 # Copiar requirements primero para aprovechar la caché de Docker
 COPY requirements.txt .
 
@@ -27,4 +30,4 @@ EXPOSE 5000
 USER no-root
 
 # Comando para ejecutar la aplicación
-CMD ["python", "techwave-app.py"]
+CMD ["python", "techwave_app.py"]
