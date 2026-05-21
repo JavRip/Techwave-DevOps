@@ -38,7 +38,7 @@ jobs:
       - name: Ejecutar tests
         run: |
           cd app
-          python -m pytest tests/ -v 2>/dev/null || echo "[INFO] No hay tests definidos aún"
+          python -m pytest test_app.py -v
 
       - name: Validar sintaxis Python
         run: |
