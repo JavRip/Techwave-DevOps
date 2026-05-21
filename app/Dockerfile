@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y gcc curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copiar el código de la aplicación
-COPY techwave-app.py .
+COPY techwave_app.py .
 
 # Asegurar permisos para el usuario no-root
 RUN chown -R no-root:no-root /app
