@@ -126,6 +126,13 @@ if ! helm list -n monitoring | grep -q promtail; then
     --set "config.clients[0].url=http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push"
 fi
 
+if ! helm list -n monitoring | grep -q tempo; then
+  echo "[INFO] Instalando Tempo..."
+  helm install tempo grafana/tempo \
+    --namespace monitoring \
+    --set grafana.enabled=false
+fi
+
 echo "[OK] Stack de monitoreo listo"
 
 echo "[INFO] Iniciando port-forwards de monitoreo..."
@@ -135,7 +142,8 @@ sleep 1
 kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80 &
 kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090 &
 kubectl port-forward -n monitoring svc/loki 3100:3100 &
-echo "[OK] Port-forwards activos: Grafana:3000, Prometheus:9090, Loki:3100"
+kubectl port-forward -n monitoring svc/tempo 3200:3200 &
+echo "[OK] Port-forwards activos: Grafana:3000, Prometheus:9090, Loki:3100, Tempo:3200"
 
 echo "[OK] Entorno listo"
 kubectl get all -n techwave

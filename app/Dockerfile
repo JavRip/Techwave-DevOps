@@ -50,5 +50,5 @@ EXPOSE 5000
 # Cambiar al usuario no-root antes de ejecutar
 USER no-root
 
-# Comando para ejecutar la aplicación
-CMD ["python", "techwave_app.py"]
+# Comando para ejecutar la aplicación y autoinstrumentación con OpenTelemetry
+CMD ["opentelemetry-instrument", "--service_name", "techwave-app", "--exporter_otlp_endpoint", "http://otel-opentelemetry-collector.monitoring:4317", "python", "techwave_app.py"]
