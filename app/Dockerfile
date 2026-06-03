@@ -28,6 +28,10 @@ ENV CACHE_DIR=/app/cache
 COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
+# Eliminar dependencias innecesarias
+RUN pip uninstall -y setuptools wheel && \
+    rm -rf /usr/local/lib/python3.11/site-packages/setuptools*
+
 # Crear usuario no-root y curl
 RUN apt-get update && apt-get install -y curl && \
     addgroup --gid 1000 no-root && \
