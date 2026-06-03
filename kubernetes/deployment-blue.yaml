@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: techwave-app
-          image: javrip/techwave-app:7072882
+          image: javrip/techwave-app:06014a8
           ports:
             - containerPort: 5000
           envFrom:
