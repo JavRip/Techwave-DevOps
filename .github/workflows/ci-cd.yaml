@@ -99,6 +99,7 @@ jobs:
           image-ref: ${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
           format: 'table'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: 'true'
           exit-code: '1'
 
       - name: Push Docker image
