@@ -3,7 +3,7 @@ app:
   namespace: techwave
   image:
     repository: javrip/techwave-app
-    tag: "7072882"           
+    tag: d5b5d23
   replicas: 2
   port: 5000
   resources:
