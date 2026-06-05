@@ -1,0 +1,16 @@
+app:
+  name: techwave-app
+  namespace: techwave
+  image:
+    repository: javrip/techwave-app
+    tag: "7072882"           
+  replicas: 2
+  port: 5000
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+  activeVersion: blue

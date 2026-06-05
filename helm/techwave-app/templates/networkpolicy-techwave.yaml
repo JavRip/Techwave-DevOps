@@ -1,8 +1,9 @@
+{{- if eq .Values.version "blue" }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: techwave-policy
-  namespace: techwave
+  name: {{ .Values.app.name }}-policy
+  namespace: {{ .Values.app.namespace }}
 spec:
   podSelector: {}    # A qué pods aplica (vacío = todos)
   policyTypes:
@@ -16,4 +17,5 @@ spec:
             matchLabels:
               kubernetes.io/metadata.name: ingress-nginx			  
       ports:
-        - port: 5000
+        - port: {{ .Values.app.port }}
+{{- end }}

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: techwave-app
+version: 1.0.0
+description: Chart Helm para la aplicación TechWave

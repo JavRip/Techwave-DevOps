@@ -1,0 +1,19 @@
+{{- if eq .Values.version "blue" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.app.name }}-service
+  namespace: {{ .Values.app.namespace }}
+  labels:
+    app: {{ .Values.app.name }}
+spec:
+  selector:
+    app: {{ .Values.app.name }}
+    version: {{ .Values.app.activeVersion }} 
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: {{ .Values.app.port }}
+  type: ClusterIP
+{{- end }}

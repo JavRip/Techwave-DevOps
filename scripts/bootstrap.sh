@@ -72,12 +72,20 @@ fi
 terraform apply
 cd ..
 
-echo "[INFO] Aplicando manifiestos de Kubernetes..."
-kubectl apply -f kubernetes/secret.yaml
-kubectl apply -f kubernetes/deployment-blue.yaml
-kubectl apply -f kubernetes/deployment-green.yaml
-kubectl apply -f kubernetes/service-blue-green.yaml
-kubectl apply -f kubernetes/ingress.yaml
+echo "[INFO] Desplegando aplicación con Helm..."
+if ! helm list -n techwave | grep -q techwave-blue; then
+  echo "[INFO] Instalando versión blue..."
+  helm install techwave-blue ./helm/techwave-app \
+    -f ./helm/techwave-app/values-blue.yaml \
+    -n techwave --create-namespace
+fi
+
+if ! helm list -n techwave | grep -q techwave-green; then
+  echo "[INFO] Instalando versión green..."
+  helm install techwave-green ./helm/techwave-app \
+    -f ./helm/techwave-app/values-green.yaml \
+    -n techwave
+fi
 
 echo "[INFO] Verificando stack de monitoreo..."
 echo "[INFO] Instalando repositorios..."

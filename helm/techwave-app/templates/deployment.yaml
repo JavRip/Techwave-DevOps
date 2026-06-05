@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}-{{ .Values.version }}
+  namespace: {{ .Values.app.namespace }}
+  labels:
+    app: {{ .Values.app.name }}
+    version: {{ .Values.version }}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      version: {{ .Values.version }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        version: {{ .Values.version }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.app.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.app.port }}
+          envFrom:
+            - configMapRef:
+                name: techwave-config 
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.name }}-secret
+                  key: SECRET_KEY
+          resources:
+            requests:
+              memory: "{{ .Values.app.resources.requests.memory }}"
+              cpu: "{{ .Values.app.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.app.resources.limits.memory }}"
+              cpu: "{{ .Values.app.resources.limits.cpu }}"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.app.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.app.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
